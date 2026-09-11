@@ -62,7 +62,6 @@ export default function UnitEditModal({ unitId, onClose, onSaved, locations = []
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
 
   // Form state
   const [form, setForm] = useState({
@@ -107,19 +106,56 @@ export default function UnitEditModal({ unitId, onClose, onSaved, locations = []
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError("");
-    setSuccessMsg("");
+  };
+
+  // Get changed fields comparison
+  const getChangedFields = () => {
+    const current = unitData || {};
+    const changes = {};
+
+    for (const field of Object.keys(form)) {
+      // Skip empty last_location_id (means "not set")
+      if (field === "last_location_id" && form[field] === "") continue;
+
+      // Normalize both values before comparing (handle undefined/null vs empty string)
+      const currentVal = String(current[field] ?? "").trim();
+      const formVal = String(form[field] ?? "").trim();
+
+      // Only include actual changes (ignore if both are effectively empty)
+      if (currentVal !== formVal && !(currentVal === "" && formVal === "")) {
+        changes[field] = form[field];
+      }
+    }
+    console.log("changes: ", changes);
+    return Object.keys(changes).length > 0 ? changes : null;
   };
 
   const handleSave = async () => {
     setSaving(true);
     setError("");
-    setSuccessMsg("");
+    
+    // Check if there are any changes before saving
+    const changedFields = getChangedFields();
+    if (!changedFields || Object.keys(changedFields).length === 0) {
+      window.alert("No changes to save. Unit data matches current values.");
+      setSaving(false);
+      return;
+    }
+    
     try {
       await api.updateUnit(unitId, form);
-      setSuccessMsg("Unit updated successfully.");
-      // Refresh activity log to show the new entry
+      // Refresh unit data to get the full diff from activity log
       const refreshed = await api.getUnit(unitId);
-      setActivityLog(refreshed.activityLog);
+      
+      // Extract what changed from the latest activity log entry
+      if (refreshed.activityLog && refreshed.activityLog.length > 0) {
+        const latestLog = refreshed.activityLog[refreshed.activityLog.length - 1];
+        window.alert(
+          `✓ Unit updated successfully.\n\n` +
+          `Changes made: ${latestLog.description}`
+        );
+      } 
+      
       onSaved?.();
     } catch (err) {
       setError(err.response?.data?.error || "Failed to save changes.");
@@ -227,11 +263,6 @@ export default function UnitEditModal({ unitId, onClose, onSaved, locations = []
               {error && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
                   {error}
-                </p>
-              )}
-              {successMsg && (
-                <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
-                  ✓ {successMsg}
                 </p>
               )}
             </div>
