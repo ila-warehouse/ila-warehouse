@@ -152,12 +152,25 @@ export default function Scan() {
               <p style={{ paddingBottom: "1rem" }}>
                 Destination: {selectedWaybill.destination}
               </p>
+
               <PhotoUpload
                 title={"Photo"}
                 preview={preview}
                 setPreview={setPreview}
               />
-              <button className="primary-btn" onClick={startScan}>
+
+              {/* Check and reset timeout before starting scan */}
+              <button
+                className="primary-btn"
+                onClick={async () => {
+                  try {
+                    await api.touchLoadingTimeout(waybillID);
+                  } catch (err) {
+                    console.error("Failed to touch waybill timeout:", err);
+                  }
+                  startScan();
+                }}
+              >
                 Proceed to Scanning
               </button>
             </div>
