@@ -35,7 +35,9 @@ const logColumns = [
     label: "Current?",
     key: "is_current",
     render: (val) => (
-      <span className={`badge ${val ? "text-green-600 font-bold" : "text-gray-400"}`}>
+      <span
+        className={`badge ${val ? "text-green-600 font-bold" : "text-gray-400"}`}
+      >
         {val ? "● Current" : "○ Previous"}
       </span>
     ),
@@ -56,7 +58,10 @@ const scanColumns = (onEditUnit, isAdmin) => [
     key: "is_unexpected",
     render: (val) =>
       val ? (
-        <span className="text-red-600 font-bold" title="Unit was not in a prior stage">
+        <span
+          className="text-red-600 font-bold"
+          title="Unit was not in a prior stage"
+        >
           ⚠️ Unexpected
         </span>
       ) : (
@@ -134,7 +139,7 @@ export default function WaybillLogs() {
       : "";
 
     const confirmed = window.confirm(
-      `Mark this waybill as CLOSED?\n\nThis action cannot be undone.${unitWarning}`
+      `Mark this waybill as CLOSED?\n\nThis action cannot be undone.${unitWarning}`,
     );
     if (!confirmed) return;
 
@@ -144,6 +149,9 @@ export default function WaybillLogs() {
       const result = await api.closeWaybill(id, closeUnits);
       if (closeUnits && result.unitsClosed > 0) {
         console.log(`✅ ${result.unitsClosed} unit(s) marked as CLOSED.`);
+        window.alert(
+          `✓ Waybill successfully closed. ${closeUnits ? `${result.unitsClosed} units also marked as Closed.` : ""}`,
+        );
       }
       await fetchPageData();
     } catch (err) {
@@ -163,15 +171,21 @@ export default function WaybillLogs() {
   // ── Manifest filters ─────────────────────────────────────────────────────
 
   const departureManifest =
-    waybillData.manifest?.filter((item) => item.manifest_type === "DEPARTURE") || [];
+    waybillData.manifest?.filter(
+      (item) => item.manifest_type === "DEPARTURE",
+    ) || [];
 
   const arrivalManifest =
-    waybillData.manifest?.filter((item) => item.manifest_type === "ARRIVAL") || [];
+    waybillData.manifest?.filter((item) => item.manifest_type === "ARRIVAL") ||
+    [];
 
   const adviceManifest =
-    waybillData.manifest?.filter((item) => item.manifest_type === "ADVICE") || [];
+    waybillData.manifest?.filter((item) => item.manifest_type === "ADVICE") ||
+    [];
 
-  const hasUnexpectedDepartures = departureManifest.some((r) => r.is_unexpected);
+  const hasUnexpectedDepartures = departureManifest.some(
+    (r) => r.is_unexpected,
+  );
   const hasUnexpectedArrivals = arrivalManifest.some((r) => r.is_unexpected);
 
   const details = waybillData.details;
@@ -188,9 +202,12 @@ export default function WaybillLogs() {
         <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-gray-700">Ready to close this waybill?</p>
+              <p className="text-sm font-semibold text-gray-700">
+                Ready to close this waybill?
+              </p>
               <p className="text-xs text-gray-500 mt-0.5">
-                All arrived units must match the expected quantity before closing.
+                All arrived units must match the expected quantity before
+                closing.
               </p>
             </div>
             <button
@@ -216,9 +233,10 @@ export default function WaybillLogs() {
                   Also mark arrived units as Closed
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Units scanned at arrival will be set to <strong>CLOSED</strong> status and
-                  removed from active inventory. Only tick this if these units have reached
-                  their final destination and will no longer be tracked in the system.
+                  Units scanned at arrival will be set to{" "}
+                  <strong>CLOSED</strong> status and removed from active
+                  inventory. Only tick this if these units have reached their
+                  final destination and will no longer be tracked in the system.
                   This cannot be undone without a manual edit.
                 </p>
               </div>
@@ -226,7 +244,9 @@ export default function WaybillLogs() {
           </div>
 
           {closeError && (
-            <p className="text-xs text-red-600 mt-3 font-medium">⚠️ {closeError}</p>
+            <p className="text-xs text-red-600 mt-3 font-medium">
+              ⚠️ {closeError}
+            </p>
           )}
         </div>
       )}
