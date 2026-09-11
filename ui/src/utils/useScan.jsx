@@ -203,6 +203,8 @@ export const useScan = () => {
     setConfirmQtyMismatch(false);
     setShowModal(false);
     setSubmitted(true);
+    setWaybillID("");
+    setSelectedWaybill(null);
   };
 
   const handleEnd = async () => {
@@ -213,12 +215,16 @@ export const useScan = () => {
         barcodes,
       });
       resetPage();
+      setWaybillID("");
+      setSelectedWaybill(null);
     } catch (err) {
       console.error(err);
       resetPage();
       setError(
         err.response?.data?.error || "A network error occurred while saving."
       );
+      setWaybillID("");
+      setSelectedWaybill(null);
     }
   };
 
@@ -229,6 +235,8 @@ export const useScan = () => {
       console.error("❌ ERROR CANCELLING WAYBILL SCAN:", err);
     } finally {
       resetPage();
+      setWaybillID("");
+      setSelectedWaybill(null);
     }
   };
 
