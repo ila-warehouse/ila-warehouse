@@ -46,7 +46,18 @@ const logColumns = [
 
 const scanColumns = (onEditUnit, isAdmin) => [
   { label: "Waybill ID", key: "waybill_id" },
-  { label: "Unit Engine", key: "engine" },
+  {
+    label: "Unit Engine",
+    key: "engine",
+    render: (val, row) => (
+      <a
+        href={`/unit_logs/${row.unit_id}`}
+        title={`View logs for ${val}`}
+      >
+        {val}
+      </a>
+    ),
+  },
   { label: "User", key: "user_id" },
   {
     label: "Created At",
