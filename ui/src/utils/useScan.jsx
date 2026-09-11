@@ -203,8 +203,6 @@ export const useScan = () => {
     setConfirmQtyMismatch(false);
     setShowModal(false);
     setSubmitted(true);
-    setWaybillID("");
-    setSelectedWaybill(null);
   };
 
   const handleEnd = async () => {
